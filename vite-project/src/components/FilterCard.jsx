@@ -1,18 +1,29 @@
 import { Plus, Search } from "lucide-react";
 import React from "react";
 import { statuses } from "../helpers/mock-data";
+import AddDealerModal from "./AddDealerModal";
 
-const FilterCard = () => {
-    const [search, setSearch] = React.useState("");
-    const [statusFilter, setStatusFilter] = React.useState("all");
+const FilterCard = ({ search, setSearch, statusFilter, setStatusFilter, sortBy, setSortBy, dealers, setDealers }) => {
     const [currentPage, setCurrentPage] = React.useState(1);
+    const [showAddModal, setShowAddModal] = React.useState(false);
+ const handleAddDealer = (formData) => {
+    const newDealer = { 
+      ...formData, 
+      id: Math.max(...dealers.map(d => d.id), 0) + 1, 
+      status: 'Pending', 
+      contact: formData.phone,
+      location: formData.address.split(',').slice(-2).join(',').trim() || 'N/A'
+    };
+    setDealers([...dealers, newDealer]);
+    setShowAddModal(false);
+  };
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
         setCurrentPage(1);
     }
-    const [sortBy, setSortBy] = React.useState("name");
   return (
+    <>
     <div className="bg-white rounded-xl shadow-lg p-6 backdrop-blur">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div className="md:col-span-2 flex items-center gap-2 bg-gray-100 px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-blue-400 transition">
@@ -47,6 +58,7 @@ const FilterCard = () => {
           className="px-4 py-3 border-2 border-gray-200 rounded-lg bg-white text-gray-800 font-semibold hover:border-blue-400 focus:border-blue-600 transition cursor-pointer"
         >
           <option value="name">Sort by Name</option>
+          <option value="">Clear Options</option>
         </select>
       </div>
 
@@ -57,6 +69,8 @@ const FilterCard = () => {
         <Plus size={22} /> Add New Dealer
       </button>
     </div>
+    <AddDealerModal open={showAddModal} onClose={() => setShowAddModal(false)} onSave={handleAddDealer} />
+    </>
   );
 };
 

@@ -1,10 +1,11 @@
 import React,{ useState} from 'react'
-import { initialDealers } from '../helpers/mock-data';
 import { AlertCircle, CheckCircle, Edit, Eye, XCircle } from 'lucide-react';
+import ViewDealerModal from './ViewDealerModal';
+import EditDealerModal from './EditDealerModal';
 
-const TableCard = () => {
-    const [paginatedDealers, setPaginatedDealers] = useState(initialDealers);
+const TableCard = ({paginatedDealers,setDealers,dealers}) => {
     const [viewingDealer, setViewingDealer] = useState(null);
+    const [editingDealer, setEditingDealer] = useState(null);
       const getStatusColor = (status) => {
     switch (status) {
       case 'Active': return 'bg-green-100 text-green-800 border-green-300';
@@ -21,7 +22,13 @@ const TableCard = () => {
       default: return null;
     }
   };
+
+    const handleEditDealer = (formData) => {
+    setDealers(dealers.map(d => d.id === editingDealer.id ? { ...d, ...formData, contact: formData.phone } : d));
+    setEditingDealer(null);
+  };
   return (
+    <>
     <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
@@ -34,7 +41,7 @@ const TableCard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedDealers.map((dealer, idx) => (
+                    {paginatedDealers?.map((dealer, idx) => (
                       <tr key={dealer.id} className={`border-b hover:bg-blue-50 transition ${idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                         <td className="px-6 py-4 text-gray-900 font-bold">{dealer.name}</td>
                         <td className="px-6 py-4 text-gray-700">{dealer.location}</td>
@@ -47,7 +54,7 @@ const TableCard = () => {
                         <td className="px-6 py-4">
                           <div className="flex justify-center gap-3">
                             <button
-                              onClick={() => setViewingDealer(dealer)}
+                              onClick={() => setViewingDealer({...dealer})}
                               className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition"
                               title="View"
                             >
@@ -67,6 +74,9 @@ const TableCard = () => {
                   </tbody>
                 </table>
               </div>
+              <ViewDealerModal dealer={viewingDealer} onClose={() => setViewingDealer(null)} />
+              <EditDealerModal dealer={editingDealer} onClose={() => setEditingDealer(null)} onSave={handleEditDealer} />
+              </>
   )
 }
 
